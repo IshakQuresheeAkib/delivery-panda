@@ -1,0 +1,48 @@
+export const Colors = {
+  primary: '#F9BE00',
+  headerBg: '#1A1A1A',
+  headerText: '#FFFFFF',
+  screenBg: '#F2F2F2',
+  cardBg: '#FFFFFF',
+  inputBg: '#F0F0F0',
+  textPrimary: '#1A1A1A',
+  textSecondary: '#888888',
+  textMuted: '#AAAAAA',
+  online: '#4CAF50',
+  offline: '#F44336',
+  incentive: '#00BFA5',
+  error: '#F44336',
+  errorBg: '#FFEBEE',
+  toastBg: '#333333',
+  toastText: '#FFFFFF',
+  floatingBtn: '#1A1A1A',
+  badgeRed: '#F44336',
+  certified: '#4CAF50',
+  helpCenterBg: '#FFFDE7',
+  white: '#FFFFFF',
+  black: '#000000',
+  transparent: 'transparent',
+  border: '#E0E0E0',
+};
+
+export const countries = [
+  { code: 'GB', name: 'United Kingdom', dial: '+44' },
+  { code: 'US', name: 'United States', dial: '+1' },
+  { code: 'CN', name: 'China', dial: '+86' },
+  { code: 'AU', name: 'Australia', dial: '+61' },
+  { code: 'JP', name: 'Japan', dial: '+81' },
+  { code: 'KR', name: 'South Korea', dial: '+82' },
+  { code: 'FR', name: 'France', dial: '+33' },
+  { code: 'IT', name: 'Italy', dial: '+39' },
+  { code: 'DE', name: 'Germany', dial: '+49' },
+  { code: 'ES', name: 'Spain', dial: '+34' },
+];
+
+export const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'zh', name: '简体中文' },
+  { code: 'ja', name: '日本語' },
+  { code: 'ko', name: '한국어' },
+  { code: 'fr', name: 'Français' },
+  { code: 'it', name: 'Italiano' },
+];
