@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Slider from '@react-native-community/slider';
 import { Colors } from '@/constants/colors';
 import { mockSettings, appVersion } from '@/mock/rider';
 import { useAuthStore } from '@/store/authStore';
