@@ -92,11 +92,6 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onGrab }) => {
       </View>
 
       <View className="flex-row items-center">
-        <View className="bg-input-bg rounded-lg px-4 py-3 mr-2">
-          <Text className="text-text-primary font-bold text-lg">
-            £{order.earnings.toFixed(2)}
-          </Text>
-        </View>
         <TouchableOpacity
           onPress={() => onGrab(order.id)}
           className="flex-1 bg-primary rounded-lg py-3 flex-row items-center justify-center"

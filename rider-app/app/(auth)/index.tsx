@@ -1,37 +1,17 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  Image,
-  Modal,
-  FlatList,
-} from 'react-native';
+import React from 'react';
+import { View, Text, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui';
-import { Colors } from '@/constants/colors';
-import { languages } from '@/constants/colors';
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const [showLanguages, setShowLanguages] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
 
   return (
     <SafeAreaView className="flex-1 bg-screen-bg">
-      <View className="flex-row justify-between items-center px-4 pt-4">
+      <View className="px-4 pt-4">
         <View className="w-12 h-12 items-center justify-center">
           <Text className="text-2xl">🐼</Text>
         </View>
-        <TouchableOpacity
-          onPress={() => setShowLanguages(true)}
-          className="flex-row items-center bg-white px-4 py-2 rounded-full border border-gray-200"
-        >
-          <Text className="text-text-primary mr-1">{selectedLanguage}</Text>
-          <Ionicons name="chevron-down" size={16} color={Colors.textPrimary} />
-        </TouchableOpacity>
       </View>
 
       <View className="flex-1 px-6 pt-8">
@@ -72,53 +52,7 @@ export default function WelcomeScreen() {
           onPress={() => router.push('/(auth)/login')}
           variant="primary"
         />
-        <View className="h-4" />
-        <Button
-          title="Register as a rider"
-          onPress={() => router.push('/(auth)/register')}
-          variant="outlined"
-        />
       </View>
-
-      <Modal
-        visible={showLanguages}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setShowLanguages(false)}
-      >
-        <View className="flex-1 bg-black/50 justify-end">
-          <SafeAreaView className="bg-white rounded-t-3xl">
-            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-              <Text className="text-lg font-bold text-text-primary">
-                Select Language
-              </Text>
-              <TouchableOpacity onPress={() => setShowLanguages(false)}>
-                <Ionicons name="close" size={24} color={Colors.textPrimary} />
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={languages}
-              keyExtractor={(item) => item.code}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    setSelectedLanguage(item.name);
-                    setShowLanguages(false);
-                  }}
-                  className={`flex-row items-center justify-between p-4 border-b border-gray-100 ${
-                    selectedLanguage === item.name ? 'bg-primary/10' : ''
-                  }`}
-                >
-                  <Text className="text-text-primary text-base">{item.name}</Text>
-                  {selectedLanguage === item.name && (
-                    <Ionicons name="checkmark" size={20} color={Colors.primary} />
-                  )}
-                </TouchableOpacity>
-              )}
-            />
-          </SafeAreaView>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }

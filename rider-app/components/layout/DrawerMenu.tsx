@@ -24,10 +24,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { icon: 'gift-outline', label: 'My Activity', route: '/(drawer)/my-activity' },
-  { icon: 'location-outline', label: 'Map Notes', route: '/(drawer)/map-notes' },
   { icon: 'card-outline', label: 'Account', route: '/(drawer)/account' },
-  { icon: 'receipt-outline', label: 'Order History', route: '/(drawer)/order-history' },
-  { icon: 'shield-checkmark-outline', label: 'Protocol management', route: '/(drawer)/protocol' },
 ];
 
 export const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose }) => {

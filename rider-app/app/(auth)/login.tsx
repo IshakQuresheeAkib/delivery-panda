@@ -10,17 +10,14 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input, Toast, LoadingSpinner, CountryPicker } from '@/components/ui';
+import { Button, Input, Toast, LoadingSpinner } from '@/components/ui';
 import { Colors } from '@/constants/colors';
 import { useAuthStore } from '@/store/authStore';
-import { countries } from '@/constants/colors';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuthStore();
 
-  const [selectedCountry, setSelectedCountry] = useState(countries[0]);
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -75,26 +72,10 @@ export default function LoginScreen() {
               Login
             </Text>
 
-            <TouchableOpacity
-              onPress={() => setShowCountryPicker(true)}
-              className="flex-row items-center justify-between bg-input-bg rounded-lg px-4 py-4 mb-4"
-            >
-              <Text className="text-text-primary text-base">
-                {selectedCountry.name}
-              </Text>
-              <Ionicons name="chevron-down" size={20} color={Colors.textPrimary} />
-            </TouchableOpacity>
-
             <View className="flex-row items-center bg-input-bg rounded-lg mb-4">
-              <TouchableOpacity
-                onPress={() => setShowCountryPicker(true)}
-                className="flex-row items-center px-4 py-4 border-r border-gray-300"
-              >
-                <Text className="text-text-primary mr-1">
-                  {selectedCountry.dial}
-                </Text>
-                <Ionicons name="caret-down" size={12} color={Colors.textPrimary} />
-              </TouchableOpacity>
+              <View className="px-4 py-4 border-r border-gray-300">
+                <Text className="text-text-primary font-medium">+44</Text>
+              </View>
               <Input
                 placeholder="Enter your cell number, ple..."
                 value={phone}
@@ -131,13 +112,6 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      <CountryPicker
-        visible={showCountryPicker}
-        onClose={() => setShowCountryPicker(false)}
-        onSelect={setSelectedCountry}
-        selectedCode={selectedCountry.code}
-      />
 
       <Toast
         visible={toast.visible}

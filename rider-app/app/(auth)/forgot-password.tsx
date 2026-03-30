@@ -12,7 +12,6 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Input, Toast, LoadingSpinner } from '@/components/ui';
 import { Colors } from '@/constants/colors';
-import { countries } from '@/constants/colors';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -23,8 +22,6 @@ export default function ForgotPasswordScreen() {
   const [countdown, setCountdown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: '' });
-
-  const selectedCountry = countries[0];
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -82,9 +79,8 @@ export default function ForgotPasswordScreen() {
             </Text>
 
             <View className="flex-row items-center bg-input-bg rounded-lg mb-4">
-              <View className="flex-row items-center px-4 py-4 border-r border-gray-300">
-                <Text className="text-text-primary mr-1">{selectedCountry.dial}</Text>
-                <Ionicons name="caret-down" size={12} color={Colors.textPrimary} />
+              <View className="px-4 py-4 border-r border-gray-300">
+                <Text className="text-text-primary font-medium">+44</Text>
               </View>
               <Input
                 placeholder="Phone number"

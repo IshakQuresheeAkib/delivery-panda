@@ -52,6 +52,27 @@ export const mockMessages: Message[] = [
     timestamp: '19:40',
     isAnonymous: true,
   },
+  {
+    id: '8',
+    senderName: 'Emily Chen',
+    senderAvatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+    preview: 'Thank you for the quick delivery! The food was still hot.',
+    timestamp: '19:22',
+    isAnonymous: false,
+  },
+  {
+    id: '9',
+    senderName: 'James Wilson',
+    preview: 'Can you please call me when you arrive at the building?',
+    timestamp: '18:55',
+    isAnonymous: false,
+  },
+  {
+    id: '10',
+    preview: 'Order received, on my way to pickup location now.',
+    timestamp: '18:30',
+    isAnonymous: true,
+  },
 ];
 
 export const mockNoticeCount = 9;

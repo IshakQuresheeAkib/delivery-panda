@@ -24,25 +24,3 @@ export const Colors = {
   transparent: 'transparent',
   border: '#E0E0E0',
 };
-
-export const countries = [
-  { code: 'GB', name: 'United Kingdom', dial: '+44' },
-  { code: 'US', name: 'United States', dial: '+1' },
-  { code: 'CN', name: 'China', dial: '+86' },
-  { code: 'AU', name: 'Australia', dial: '+61' },
-  { code: 'JP', name: 'Japan', dial: '+81' },
-  { code: 'KR', name: 'South Korea', dial: '+82' },
-  { code: 'FR', name: 'France', dial: '+33' },
-  { code: 'IT', name: 'Italy', dial: '+39' },
-  { code: 'DE', name: 'Germany', dial: '+49' },
-  { code: 'ES', name: 'Spain', dial: '+34' },
-];
-
-export const languages = [
-  { code: 'en', name: 'English' },
-  { code: 'zh', name: '简体中文' },
-  { code: 'ja', name: '日本語' },
-  { code: 'ko', name: '한국어' },
-  { code: 'fr', name: 'Français' },
-  { code: 'it', name: 'Italiano' },
-];

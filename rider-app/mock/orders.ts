@@ -5,7 +5,6 @@ export interface Order {
   customerAddress: string;
   deliveryTime: number;
   foodReady: boolean;
-  earnings: number;
   merchantOrderTime: string;
   incentive?: {
     type: 'platform' | 'deadline';
@@ -23,7 +22,6 @@ export const mockOrders: Order[] = [
     customerAddress: '44 Newnton Close, Hackney, 伦敦, 英国 N4 2GX',
     deliveryTime: 39,
     foodReady: true,
-    earnings: 7.61,
     merchantOrderTime: '03-27 16:33',
     incentive: {
       type: 'deadline',
@@ -39,7 +37,6 @@ export const mockOrders: Order[] = [
     customerAddress: 'London E1W 2AH, UK e1w 2ah',
     deliveryTime: 35,
     foodReady: true,
-    earnings: 7.02,
     merchantOrderTime: '03-27 17:32',
     status: 'new',
   },
@@ -50,7 +47,6 @@ export const mockOrders: Order[] = [
     customerAddress: '84, Alie Street, Tower Hamlets, London, England, United Kingdom E1 8QB',
     deliveryTime: 25,
     foodReady: true,
-    earnings: 7.48,
     merchantOrderTime: '03-27 19:06',
     incentive: {
       type: 'platform',
@@ -58,7 +54,64 @@ export const mockOrders: Order[] = [
     },
     status: 'new',
   },
+  {
+    id: '4',
+    restaurantName: 'Golden Dragon Chinese',
+    restaurantAddress: '25 Gerrard Street, Chinatown, London, W1D 6JL',
+    customerAddress: '15 Baker Street, Marylebone, London, W1U 3AH',
+    deliveryTime: 28,
+    foodReady: false,
+    merchantOrderTime: '03-27 19:15',
+    status: 'new',
+  },
+  {
+    id: '5',
+    restaurantName: 'Sushi Express',
+    restaurantAddress: '88 Wardour Street, Soho, London, W1F 0TH',
+    customerAddress: '42 Oxford Street, Westminster, London, W1D 1BS',
+    deliveryTime: 22,
+    foodReady: true,
+    merchantOrderTime: '03-27 19:20',
+    incentive: {
+      type: 'platform',
+      amount: 1.75,
+    },
+    status: 'new',
+  },
 ];
 
-export const mockPickupOrders: Order[] = [];
-export const mockDeliveringOrders: Order[] = [];
+export const mockPickupOrders: Order[] = [
+  {
+    id: 'p1',
+    restaurantName: 'Bubble CiTea',
+    restaurantAddress: '123 Oxford Street, London, W1D 2LG',
+    customerAddress: '56 Regent Street, London, W1B 5SA',
+    deliveryTime: 15,
+    foodReady: true,
+    merchantOrderTime: '03-27 18:45',
+    status: 'pickup',
+  },
+  {
+    id: 'p2',
+    restaurantName: 'Wagamama',
+    restaurantAddress: '8 Leicester Square, London, WC2H 7NA',
+    customerAddress: '22 Covent Garden, London, WC2E 8RF',
+    deliveryTime: 20,
+    foodReady: true,
+    merchantOrderTime: '03-27 18:30',
+    status: 'pickup',
+  },
+];
+
+export const mockDeliveringOrders: Order[] = [
+  {
+    id: 'd1',
+    restaurantName: 'Pizza Express',
+    restaurantAddress: '29 Wardour Street, London, W1D 6PS',
+    customerAddress: '10 Downing Street, Westminster, London, SW1A 2AA',
+    deliveryTime: 8,
+    foodReady: true,
+    merchantOrderTime: '03-27 18:15',
+    status: 'delivering',
+  },
+];
