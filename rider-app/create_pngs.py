@@ -58,10 +58,10 @@ def main():
     
     # Image specifications
     images = [
-        ('icon.png', 1024, 1024, (255, 107, 53)),      # #FF6B35
-        ('icon.png', 1284, 2778, (0, 78, 137)),      # #004E89
-        ('adaptive-icon.png', 1024, 1024, (27, 73, 101)),  # #1B4965
-        ('favicon.png', 48, 48, (45, 90, 140))         # #2D5A8C
+        ('icon.svg', 1024, 1024, (255, 107, 53)),      # #FF6B35
+        ('icon.svg', 1284, 2778, (0, 78, 137)),      # #004E89
+        ('adaptive-icon.svg', 1024, 1024, (27, 73, 101)),  # #1B4965
+        ('favicon.svg', 48, 48, (45, 90, 140))         # #2D5A8C
     ]
     
     # Try using PIL first

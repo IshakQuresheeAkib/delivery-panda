@@ -25,10 +25,10 @@ if (!fs.existsSync(imagesDir)) {
 
 // Image specifications
 const images = [
-  { name: 'icon.png', width: 1024, height: 1024, color: '#FF6B35' },
-  { name: 'icon.png', width: 1284, height: 2778, color: '#004E89' },
-  { name: 'adaptive-icon.png', width: 1024, height: 1024, color: '#1B4965' },
-  { name: 'favicon.png', width: 48, height: 48, color: '#2D5A8C' }
+  { name: 'icon.svg', width: 1024, height: 1024, color: '#FF6B35' },
+  { name: 'icon.svg', width: 1284, height: 2778, color: '#004E89' },
+  { name: 'adaptive-icon.svg', width: 1024, height: 1024, color: '#1B4965' },
+  { name: 'favicon.svg', width: 48, height: 48, color: '#2D5A8C' }
 ];
 
 async function generateWithSharp() {
