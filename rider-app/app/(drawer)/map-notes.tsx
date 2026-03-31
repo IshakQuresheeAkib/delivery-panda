@@ -1,2 +1,6 @@
-// DEPRECATED: This file should be deleted - Map Notes removed per client requirements
-export default function DeprecatedScreen() { return null; }
+import { Redirect } from 'expo-router';
+
+// This route has been removed - redirect to my-activity
+export default function MapNotesRedirect() {
+  return <Redirect href="/(drawer)/my-activity" />;
+}

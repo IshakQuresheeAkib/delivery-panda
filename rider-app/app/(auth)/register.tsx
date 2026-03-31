@@ -1,2 +1,6 @@
-// DEPRECATED: This file should be deleted - Register flow removed per client requirements
-export default function DeprecatedScreen() { return null; }
+import { Redirect } from 'expo-router';
+
+// This route has been removed - redirect to login
+export default function RegisterRedirect() {
+  return <Redirect href="/(auth)/login" />;
+}
