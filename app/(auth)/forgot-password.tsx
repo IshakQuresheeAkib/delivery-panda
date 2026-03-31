@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -65,69 +65,82 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-screen-bg">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
-        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
-          <TouchableOpacity onPress={() => router.back()} className="p-4">
-            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-          </TouchableOpacity>
+        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }}>
+          <Pressable 
+            onPress={() => router.back()} 
+            className="p-4 ml-2 mt-2 self-start rounded-full active:bg-gray-200 transition-colors"
+          >
+            <Ionicons name="arrow-back" size={26} color={Colors.textPrimary} />
+          </Pressable>
 
-          <View className="px-6 pt-2">
-            <Text className="text-3xl font-bold text-text-primary mb-8">
-              Forgotten Password
-            </Text>
+          <View className="px-6 pt-6 flex-1">
+            <View className="mb-10">
+              <Text className="text-3xl font-bold tracking-tight text-text-primary mb-2">
+                Reset Password
+              </Text>
+              <Text className="text-base font-normal text-text-secondary">
+                Enter your phone number to receive a temporary verification code
+              </Text>
+            </View>
 
-            <View className="flex-row items-center bg-input-bg rounded-lg mb-4">
-              <View className="px-4 py-4 border-r border-gray-300">
-                <Text className="text-text-primary font-medium">+44</Text>
-              </View>
+            <View className="gap-2">
               <Input
                 placeholder="Phone number"
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
-                style={{ flex: 1, marginBottom: 0 }}
+                leftSlot={
+                  <View className="pr-3 mr-1 border-r border-border-soft flex-row items-center">
+                    <Text className="text-text-primary font-semibold text-base">+44</Text>
+                  </View>
+                }
               />
-            </View>
 
-            <View className="flex-row items-center bg-input-bg rounded-lg mb-4">
               <Input
                 placeholder="Verification code"
                 value={verificationCode}
                 onChangeText={setVerificationCode}
                 keyboardType="number-pad"
-                style={{ flex: 1, marginBottom: 0 }}
+                rightSlot={
+                  <Pressable
+                    onPress={handleGetCode}
+                    disabled={countdown > 0}
+                    className={`px-3 py-2 rounded-lg ml-1 ${countdown > 0 ? 'bg-gray-100' : 'bg-primary/10 active:bg-primary/20'}`}
+                  >
+                    <Text className={countdown > 0 ? 'text-text-muted font-medium' : 'text-primary-dark font-semibold'}>
+                      {countdown > 0 ? `${countdown}s` : 'Get code'}
+                    </Text>
+                  </Pressable>
+                }
               />
-              <TouchableOpacity
-                onPress={handleGetCode}
-                disabled={countdown > 0}
-                className="px-4"
-              >
-                <Text className={countdown > 0 ? 'text-text-muted' : 'text-primary font-medium'}>
-                  {countdown > 0 ? `${countdown}s` : 'Get verification code'}
+
+              <View>
+                <Input
+                  placeholder="New password"
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  isPassword
+                />
+                <Text className="text-text-secondary text-sm font-medium mt-1 mb-8 ml-1">
+                  Password length must be 8–20 characters
                 </Text>
-              </TouchableOpacity>
+              </View>
             </View>
 
-            <Input
-              placeholder="New password"
-              value={newPassword}
-              onChangeText={setNewPassword}
-              isPassword
-            />
-            <Text className="text-text-secondary text-xs mb-6 -mt-2">
-              Password length 8–20 characters
-            </Text>
-
-            <Button
-              title="reset"
-              onPress={handleReset}
-              loading={loading}
-              disabled={loading}
-            />
+            <View className="mt-auto mb-10 pt-10">
+              <Button
+                title="Reset Password"
+                onPress={handleReset}
+                loading={loading}
+                disabled={loading}
+                style={{ height: 56 }}
+              />
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

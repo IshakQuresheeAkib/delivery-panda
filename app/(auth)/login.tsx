@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -54,61 +54,72 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-screen-bg">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
-        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
-          <TouchableOpacity
+        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }}>
+          <Pressable
             onPress={() => router.back()}
-            className="p-4"
+            className="p-4 ml-2 mt-2 self-start rounded-full active:bg-gray-200 transition-colors"
           >
-            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-          </TouchableOpacity>
+            <Ionicons name="arrow-back" size={26} color={Colors.textPrimary} />
+          </Pressable>
 
-          <View className="px-6 pt-2">
-            <Text className="text-3xl font-bold text-text-primary mb-8">
-              Login
-            </Text>
+          <View className="px-6 pt-6 flex-1">
+            <View className="mb-10">
+              <Text className="text-3xl font-bold tracking-tight text-text-primary mb-2">
+                Welcome back
+              </Text>
+              <Text className="text-base font-normal text-text-secondary">
+                Login to your account to continue
+              </Text>
+            </View>
 
-            <View className="flex-row items-center bg-input-bg rounded-lg mb-4">
-              <View className="px-4 py-4 border-r border-gray-300">
-                <Text className="text-text-primary font-medium">+44</Text>
-              </View>
+            <View className="gap-2">
               <Input
-                placeholder="Enter your cell number, ple..."
+                placeholder="Enter your cell number"
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
                 showClear
                 onClear={() => setPhone('')}
-                style={{ flex: 1, marginBottom: 0 }}
+                leftSlot={
+                  <View className="pr-3 mr-1 border-r border-border-soft flex-row items-center">
+                    <Text className="text-text-primary font-semibold text-base">+44</Text>
+                  </View>
+                }
               />
+
+              <View>
+                <Input
+                  placeholder="Please enter password"
+                  value={password}
+                  onChangeText={setPassword}
+                  isPassword
+                />
+                
+                <Pressable
+                  onPress={() => router.push('/(auth)/forgot-password')}
+                  className="self-end py-2 px-1 -mt-2 active:opacity-70"
+                >
+                  <Text className="text-primary-dark font-semibold text-sm">
+                    Forgot Password?
+                  </Text>
+                </Pressable>
+              </View>
             </View>
 
-            <Input
-              placeholder="Please enter password"
-              value={password}
-              onChangeText={setPassword}
-              isPassword
-            />
-
-            <TouchableOpacity
-              onPress={() => router.push('/(auth)/forgot-password')}
-              className="self-end mb-6"
-            >
-              <Text className="text-text-primary underline">
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
-
-            <Button
-              title="Login"
-              onPress={handleLogin}
-              loading={loading}
-              disabled={loading}
-            />
+            <View className="mt-auto mb-10 pt-10">
+              <Button
+                title="Login"
+                onPress={handleLogin}
+                loading={loading}
+                disabled={loading}
+                style={{ height: 56 }}
+              />
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

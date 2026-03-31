@@ -10,22 +10,22 @@ export default function PlanScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-screen-bg">
+    <View className="flex-1 bg-screen-bg">
       <DarkHeader
         onMenuPress={() => router.push('/(drawer)/personal')}
         showStatus={false}
         rightIcons={[]}
       />
       
-      <View className="flex-1 items-center justify-center px-8">
-        <View className="w-24 h-24 bg-gray-200 rounded-full items-center justify-center mb-6">
-          <Ionicons name="calendar-outline" size={48} color={Colors.textMuted} />
+      <View className="flex-1 items-center justify-center px-8 pb-10">
+        <View className="w-32 h-32 bg-gray-200 rounded-full items-center justify-center mb-6 shadow-sm">
+          <Ionicons name="calendar-outline" size={56} color={Colors.textMuted} />
         </View>
-        <Text className="text-xl font-bold text-text-primary mb-2">Plan</Text>
-        <Text className="text-text-secondary text-center">
-          Rider schedule and availability calendar will be available in v2
+        <Text className="text-2xl font-bold text-text-primary tracking-tight mb-3">Your Plan</Text>
+        <Text className="text-text-secondary text-base text-center leading-relaxed max-w-[280px]">
+          Rider schedule and availability calendar will be available in our next update.
         </Text>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

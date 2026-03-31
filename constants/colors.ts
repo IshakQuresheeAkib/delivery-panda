@@ -1,5 +1,6 @@
 export const Colors = {
   primary: '#F9BE00',
+  primaryDark: '#D4A000',
   headerBg: '#1A1A1A',
   headerText: '#FFFFFF',
   screenBg: '#F2F2F2',
@@ -9,6 +10,7 @@ export const Colors = {
   textSecondary: '#888888',
   textMuted: '#AAAAAA',
   online: '#4CAF50',
+  statusOnline: '#4CAF50',
   offline: '#F44336',
   incentive: '#00BFA5',
   error: '#F44336',
@@ -23,4 +25,5 @@ export const Colors = {
   black: '#000000',
   transparent: 'transparent',
   border: '#E0E0E0',
+  borderSoft: '#E0E0E0',
 };

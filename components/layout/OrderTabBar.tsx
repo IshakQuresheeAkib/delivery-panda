@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Colors } from '@/constants/colors';
 
 export type OrderTab = 'new' | 'pickup' | 'delivering';
@@ -20,26 +20,28 @@ export const OrderTabBar: React.FC<OrderTabBarProps> = ({
   ];
 
   return (
-    <View className="bg-header-bg flex-row">
+    <View className="bg-header-bg flex-row shadow-sm z-10 elevation-3">
       {tabs.map((tab) => (
-        <TouchableOpacity
+        <Pressable
           key={tab.key}
           onPress={() => onTabChange(tab.key)}
-          className="flex-1 py-3 items-center"
+          className="flex-1 py-4 items-center justify-center min-h-[48px] active:bg-white/5 transition-colors"
         >
           <Text
-            className={`text-sm font-medium ${
-              activeTab === tab.key ? 'text-white' : 'text-text-secondary'
+            className={`text-base tracking-tight ${
+              activeTab === tab.key 
+                ? 'font-bold text-white' 
+                : 'font-normal text-text-secondary'
             }`}
           >
             {tab.label}
           </Text>
           {activeTab === tab.key && (
             <View
-              className="absolute bottom-0 w-8 h-1 bg-primary rounded-t"
+              className="absolute bottom-0 w-12 h-[3px] bg-primary rounded-t-full"
             />
           )}
-        </TouchableOpacity>
+        </Pressable>
       ))}
     </View>
   );

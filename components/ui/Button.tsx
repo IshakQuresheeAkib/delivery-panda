@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  TouchableOpacity,
+  Pressable,
   Text,
   ActivityIndicator,
   ViewStyle,
   TextStyle,
+  View,
 } from 'react-native';
 import { Colors } from '@/constants/colors';
 
@@ -16,6 +17,7 @@ interface ButtonProps {
   loading?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  icon?: React.ReactNode;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -26,31 +28,38 @@ export const Button: React.FC<ButtonProps> = ({
   loading = false,
   style,
   textStyle,
+  icon,
 }) => {
+  const [isPressed, setIsPressed] = useState(false);
+
   const getButtonStyle = () => {
-    const base = 'w-full py-4 rounded-lg items-center justify-center flex-row';
+    // 44px min-h touch target, safe padding, modern xl rounding
+    const base = 'w-full min-h-[48px] py-3.5 px-4 rounded-xl items-center justify-center flex-row gap-2 transition-all';
     
     if (disabled || loading) {
-      return `${base} bg-gray-300`;
+      if (variant === 'text') return `${base} opacity-50`;
+      return `${base} bg-gray-200 border border-gray-200`;
     }
     
     switch (variant) {
       case 'primary':
-        return `${base} bg-primary`;
+        return `${base} ${isPressed ? 'bg-[#E0AA00]' : 'bg-primary'} border border-transparent shadow-sm`;
       case 'outlined':
-        return `${base} bg-white border-2 border-text-primary`;
+        return `${base} bg-transparent border border-border-soft ${isPressed ? 'bg-gray-50' : ''}`;
       case 'text':
-        return `${base} bg-transparent`;
+        return `${base} bg-transparent border border-transparent ${isPressed ? 'bg-gray-100' : ''}`;
       default:
         return `${base} bg-primary`;
     }
   };
 
   const getTextStyle = () => {
-    const base = 'text-base font-bold';
+    // Better hierarchy and weight mapping
+    const base = 'text-base font-semibold tracking-tight';
     
     if (disabled || loading) {
-      return `${base} text-gray-500`;
+      if (variant === 'text') return `${base} text-gray-400`;
+      return `${base} text-gray-400`;
     }
     
     switch (variant) {
@@ -59,27 +68,31 @@ export const Button: React.FC<ButtonProps> = ({
       case 'outlined':
         return `${base} text-text-primary`;
       case 'text':
-        return `${base} text-error`;
+        return `${base} text-text-primary`; // Standardized instead of error red
       default:
         return `${base} text-text-primary`;
     }
   };
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       disabled={disabled || loading}
       className={getButtonStyle()}
       style={style}
-      activeOpacity={0.8}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
     >
       {loading ? (
-        <ActivityIndicator color={Colors.textPrimary} />
+        <ActivityIndicator color={variant === 'primary' ? Colors.textPrimary : Colors.primary} size="small" />
       ) : (
-        <Text className={getTextStyle()} style={textStyle}>
-          {title}
-        </Text>
+        <View className="flex-row items-center justify-center gap-2">
+          {icon}
+          <Text className={getTextStyle()} style={textStyle}>
+            {title}
+          </Text>
+        </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };

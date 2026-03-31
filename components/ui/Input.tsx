@@ -31,47 +31,65 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <View className="w-full mb-4">
+    <View className="w-full mb-5">
       {label && (
-        <Text className="text-text-primary text-sm mb-2 font-medium">
+        <Text className="text-text-primary text-sm mb-1.5 font-medium ml-1">
           {label}
         </Text>
       )}
       <View
-        className={`flex-row items-center bg-input-bg rounded-lg px-4 ${
-          error ? 'border border-error' : ''
-        }`}
+        className={`flex-row items-center bg-input-bg rounded-xl px-4 min-h-[52px] border ${
+          error 
+            ? 'border-error bg-error-bg/50' 
+            : isFocused 
+              ? 'border-primary bg-card-bg' 
+              : 'border-transparent' // Subtle border when unfocused is transparent against input-bg
+        } transition-colors gap-2`}
       >
-        {leftSlot}
+        {leftSlot && <View className="mr-1">{leftSlot}</View>}
         <TextInput
-          className="flex-1 py-4 text-text-primary text-base"
+          className="flex-1 py-3 text-text-primary text-base font-normal leading-tight h-full"
           placeholderTextColor={Colors.textMuted}
           secureTextEntry={isPassword && !showPassword}
           value={value}
+          onFocus={(e) => {
+            setIsFocused(true);
+            props.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            props.onBlur?.(e);
+          }}
           {...props}
         />
         {showClear && value && (
-          <TouchableOpacity onPress={onClear} className="p-1">
+          <TouchableOpacity 
+            onPress={onClear} 
+            className="p-2 -mr-2" // 44px min touch target offset logic
+            activeOpacity={0.7}
+          >
             <Ionicons name="close-circle" size={20} color={Colors.textMuted} />
           </TouchableOpacity>
         )}
         {isPassword && (
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
-            className="p-1"
+            className="p-2 -mr-2" // 44px min touch target offset logic
+            activeOpacity={0.7}
           >
             <Ionicons
               name={showPassword ? 'eye-off' : 'eye'}
               size={20}
-              color={Colors.textMuted}
+              color={isFocused ? Colors.textPrimary : Colors.textMuted}
             />
           </TouchableOpacity>
         )}
-        {rightSlot}
+        {rightSlot && <View className="ml-1">{rightSlot}</View>}
       </View>
-      {error && <Text className="text-error text-xs mt-1">{error}</Text>}
+      {error && <Text className="text-error text-sm mt-1.5 ml-1">{error}</Text>}
     </View>
   );
 };
