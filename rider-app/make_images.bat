@@ -11,7 +11,7 @@ png_data = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUl
 os.makedirs('assets/images', exist_ok=True)
 
 # Create files
-files = ['assets/images/icon.svg', 'assets/images/icon.svg', 'assets/images/adaptive-icon.svg', 'assets/images/favicon.svg']
+files = ['assets/images/icon.png', 'assets/images/icon.png', 'assets/images/adaptive-icon.png', 'assets/images/favicon.svg']
 for f in files:
     with open(f, 'wb') as fp:
         fp.write(png_data)
