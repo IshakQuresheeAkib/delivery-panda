@@ -113,7 +113,16 @@ Follow these steps to set up the project locally.
     # or: yarn install
     ```
 
-3.  **Run the application:**
+3.  **Set up environment variables:**
+    ```bash
+    cp .env.example .env
+    ```
+    Then edit `.env` and add your Google Maps API key:
+    ```
+    GOOGLE_MAPS_API_KEY=your_actual_api_key_here
+    ```
+
+4.  **Run the application:**
     ```bash
     npm start
     # or: npx expo start --clear

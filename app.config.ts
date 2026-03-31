@@ -1,0 +1,64 @@
+import 'dotenv/config';
+import { ExpoConfig, ConfigContext } from 'expo/config';
+
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || '';
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  ...config,
+  name: 'Delivery Panda',
+  slug: 'rider-app',
+  version: '1.0.0',
+  orientation: 'portrait',
+  icon: './assets/images/icon.png',
+  scheme: 'rider-app',
+  userInterfaceStyle: 'automatic',
+  splash: {
+    image: './assets/images/icon.png',
+    resizeMode: 'contain',
+    backgroundColor: '#F9BE00',
+  },
+  ios: {
+    supportsTablet: true,
+    bundleIdentifier: 'com.deliverypanda.rider',
+    config: {
+      googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    },
+  },
+  android: {
+    adaptiveIcon: {
+      foregroundImage: './assets/images/icon.png',
+      backgroundColor: '#F9BE00',
+    },
+    package: 'com.deliverypanda.rider',
+    config: {
+      googleMaps: {
+        apiKey: GOOGLE_MAPS_API_KEY,
+      },
+    },
+  },
+  web: {
+    bundler: 'metro',
+    output: 'static',
+    favicon: './assets/images/icon.png',
+  },
+  plugins: [
+    'expo-router',
+    'expo-secure-store',
+    [
+      'expo-location',
+      {
+        locationAlwaysAndWhenInUsePermission: 'Allow Delivery Panda to use your location.',
+      },
+    ],
+    'expo-font',
+  ],
+  experiments: {
+    typedRoutes: true,
+  },
+  extra: {
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    eas: {
+      projectId: 'your-eas-project-id', // Update when you run `eas init`
+    },
+  },
+});

@@ -10,7 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { DarkHeader, OrderTabBar, OrderTab } from '@/components/layout';
-import { OrderCard } from '@/components/order';
+import { OrderCard, PickupOrderCard } from '@/components/order';
 import { OfflineView } from '@/components/home';
 import { Toast } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
@@ -121,7 +121,15 @@ export default function DeliveryOrdersScreen() {
           showsVerticalScrollIndicator={false}
         >
           {orders.map((order) => (
-            <OrderCard key={order.id} order={order} onGrab={handleGrabOrder} />
+            activeTab === 'pickup' ? (
+              <PickupOrderCard 
+                key={order.id} 
+                order={order} 
+                onArrivedAtShop={(id) => setToast({ visible: true, message: `Arrived at shop for order ${id}` })}
+              />
+            ) : (
+              <OrderCard key={order.id} order={order} onGrab={handleGrabOrder} />
+            )
           ))}
         </ScrollView>
       )}

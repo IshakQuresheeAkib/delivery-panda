@@ -1,18 +1,29 @@
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
 export interface Order {
   id: string;
+  orderNo?: string;
   restaurantName: string;
   restaurantAddress: string;
+  customerName?: string;
   customerAddress: string;
   deliveryTime: number;
+  arriveAtStoreTime?: number;
+  dishesCount?: number;
   foodReady: boolean;
   merchantOrderTime: string;
   price: number;
   incentive?: {
-    type: 'platform' | 'deadline';
+    type: 'platform' | 'deadline' | 'special';
     amount: number;
     deadline?: string;
   };
   status: 'new' | 'pickup' | 'delivering';
+  restaurantCoordinates?: Coordinates;
+  customerCoordinates?: Coordinates;
 }
 
 export const mockOrders: Order[] = [
@@ -89,25 +100,80 @@ export const mockOrders: Order[] = [
 export const mockPickupOrders: Order[] = [
   {
     id: 'p1',
+    orderNo: '#77831618',
+    restaurantName: 'Sanxia Goodge St.',
+    restaurantAddress: 'Zindabazar, Sylhet 3100, Bangladesh',
+    customerName: 'John D.',
+    customerAddress: 'Amborkhana Point, Sylhet 3100, Bangladesh',
+    deliveryTime: 14,
+    arriveAtStoreTime: 9,
+    dishesCount: 3,
+    foodReady: true,
+    merchantOrderTime: '03-27 18:45',
+    price: 2.90,
+    incentive: {
+      type: 'special',
+      amount: 0.30,
+    },
+    status: 'pickup',
+    restaurantCoordinates: {
+      latitude: 24.8988,
+      longitude: 91.8706,
+    },
+    customerCoordinates: {
+      latitude: 24.9038,
+      longitude: 91.8732,
+    },
+  },
+  {
+    id: 'p2',
+    orderNo: '#77831619',
     restaurantName: 'Bubble CiTea',
     restaurantAddress: '123 Oxford Street, London, W1D 2LG',
+    customerName: 'Sarah M.',
     customerAddress: '56 Regent Street, London, W1B 5SA',
     deliveryTime: 15,
+    arriveAtStoreTime: 7,
+    dishesCount: 2,
     foodReady: true,
     merchantOrderTime: '03-27 18:45',
     price: 2.90,
     status: 'pickup',
+    restaurantCoordinates: {
+      latitude: 51.5155,
+      longitude: -0.1418,
+    },
+    customerCoordinates: {
+      latitude: 51.5117,
+      longitude: -0.1392,
+    },
   },
   {
-    id: 'p2',
+    id: 'p3',
+    orderNo: '#77831620',
     restaurantName: 'Wagamama',
     restaurantAddress: '8 Leicester Square, London, WC2H 7NA',
+    customerName: 'Mike T.',
     customerAddress: '22 Covent Garden, London, WC2E 8RF',
     deliveryTime: 20,
+    arriveAtStoreTime: 12,
+    dishesCount: 4,
     foodReady: true,
     merchantOrderTime: '03-27 18:30',
     price: 6.45,
+    incentive: {
+      type: 'platform',
+      amount: 1.50,
+    },
     status: 'pickup',
+    restaurantCoordinates: {
+      latitude: 51.5107,
+      longitude: -0.1281,
+    },
+    customerCoordinates: {
+      latitude: 51.5126,
+      longitude: -0.1225,
+    },
   },
 ];
 
