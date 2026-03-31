@@ -6,6 +6,7 @@ export interface Order {
   deliveryTime: number;
   foodReady: boolean;
   merchantOrderTime: string;
+  price: number;
   incentive?: {
     type: 'platform' | 'deadline';
     amount: number;
@@ -23,6 +24,7 @@ export const mockOrders: Order[] = [
     deliveryTime: 39,
     foodReady: true,
     merchantOrderTime: '03-27 16:33',
+    price: 4.50,
     incentive: {
       type: 'deadline',
       amount: 1.5,
@@ -38,6 +40,7 @@ export const mockOrders: Order[] = [
     deliveryTime: 35,
     foodReady: true,
     merchantOrderTime: '03-27 17:32',
+    price: 3.25,
     status: 'new',
   },
   {
@@ -48,6 +51,7 @@ export const mockOrders: Order[] = [
     deliveryTime: 25,
     foodReady: true,
     merchantOrderTime: '03-27 19:06',
+    price: 7.48,
     incentive: {
       type: 'platform',
       amount: 2.14,
@@ -62,6 +66,7 @@ export const mockOrders: Order[] = [
     deliveryTime: 28,
     foodReady: false,
     merchantOrderTime: '03-27 19:15',
+    price: 5.60,
     status: 'new',
   },
   {
@@ -72,6 +77,7 @@ export const mockOrders: Order[] = [
     deliveryTime: 22,
     foodReady: true,
     merchantOrderTime: '03-27 19:20',
+    price: 8.90,
     incentive: {
       type: 'platform',
       amount: 1.75,
@@ -89,6 +95,7 @@ export const mockPickupOrders: Order[] = [
     deliveryTime: 15,
     foodReady: true,
     merchantOrderTime: '03-27 18:45',
+    price: 2.90,
     status: 'pickup',
   },
   {
@@ -99,6 +106,7 @@ export const mockPickupOrders: Order[] = [
     deliveryTime: 20,
     foodReady: true,
     merchantOrderTime: '03-27 18:30',
+    price: 6.45,
     status: 'pickup',
   },
 ];
@@ -112,6 +120,7 @@ export const mockDeliveringOrders: Order[] = [
     deliveryTime: 8,
     foodReady: true,
     merchantOrderTime: '03-27 18:15',
+    price: 5.20,
     status: 'delivering',
   },
 ];

@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, Pressable, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/colors';
 import type { Order } from '@/mock/orders';
 
 interface OrderCardProps {
@@ -37,108 +36,89 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, onGrab }) => {
   });
 
   return (
-    <View className="bg-card-bg rounded-2xl mx-4 mb-4 p-5 shadow-sm border border-border-soft">
+    <View className="bg-white rounded-[20px] mx-4 mb-4 p-5 shadow-sm relative">
       {/* Header Info */}
-      <View className="flex-row justify-between items-center mb-4 pb-3 border-b border-border-soft">
-        <View className="flex-row items-center gap-2">
-          <Ionicons name="time" size={18} color={Colors.textPrimary} />
-          <Text className="text-text-primary text-base font-normal">
-            Delivered in <Text className="font-bold">{order.deliveryTime}mins</Text>
-          </Text>
-        </View>
-        <View className={`px-2 py-1 rounded-full ${order.foodReady ? 'bg-success-bg' : 'bg-gray-100'}`}>
-          <Text className={`text-xs font-semibold ${order.foodReady ? 'text-status-online' : 'text-text-secondary'}`}>
-            {order.foodReady ? 'Food Ready' : 'Preparing'}
-          </Text>
-        </View>
+      <View className="flex-row justify-between items-center pb-3 border-b border-gray-100 mb-4">
+        <Text className="text-gray-500 text-base font-normal">
+          Delivered in <Text className="text-black font-bold text-lg">{order.deliveryTime}mins</Text>
+        </Text>
+        <Text className="text-gray-500 font-medium">
+          {order.foodReady ? 'Food is ready' : 'Preparing'}
+        </Text>
       </View>
 
       {/* Locations */}
-      <View className="gap-5 mb-5 relative">
-        {/* Connection Line */}
-        <View className="absolute left-2.5 top-6 bottom-6 w-0.5 bg-gray-200" />
-        
+      <View className="gap-5">
         {/* Pickup */}
-        <View className="flex-row items-start gap-4">
-          <View className="bg-primary/20 w-6 h-6 rounded-full items-center justify-center -ml-0.5 mt-0.5 z-10">
-            <Ionicons name="storefront" size={12} color={Colors.primaryDark || Colors.primary} />
-          </View>
+        <View className="flex-row items-start gap-4 pr-6">
+          <Ionicons name="storefront-outline" size={20} color="black" className="mt-0.5" />
           <View className="flex-1">
-            <Text className="text-text-primary font-bold text-lg leading-tight mb-1">
+            <Text className="text-black font-bold text-lg leading-tight">
               {order.restaurantName}
             </Text>
-            <Text className="text-text-secondary text-sm font-normal leading-tight">
+            <Text className="text-gray-500 text-sm font-normal leading-tight mt-1">
               {order.restaurantAddress}
             </Text>
           </View>
         </View>
 
         {/* Dropoff */}
-        <View className="flex-row items-start gap-4">
-          <View className="bg-gray-200 w-6 h-6 rounded-full items-center justify-center -ml-0.5 mt-0.5 z-10">
-            <Ionicons name="location" size={14} color={Colors.textSecondary} />
-          </View>
+        <View className="flex-row items-start gap-4 pr-6">
+          <Ionicons name="person-outline" size={20} color="black" className="mt-0.5" />
           <View className="flex-1">
-            <Text className="text-text-primary font-bold text-lg leading-tight">
+            <Text className="text-black font-bold text-lg leading-tight">
               {order.customerAddress}
             </Text>
+            
+            {/* Incentive Badge inline beneath Customer Address */}
+            {order.incentive && (
+              <View className="bg-[#ccf5e3] px-3 py-1 rounded mt-2 self-start">
+                <Text className="text-[#10b981] font-medium text-sm">
+                  {order.incentive.type === 'platform' ? 'Platform Incentive' : 'Deadline Incentive'} £ {order.incentive.amount.toFixed(2)}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </View>
 
-      {/* Incentive Badges */}
-      {order.incentive && (
-        <View
-          className={`rounded-xl px-4 py-3 mb-5 flex-row items-center gap-2 border ${
-            order.incentive.type === 'platform' 
-              ? 'bg-success-bg border-status-online/20' 
-              : 'bg-error-bg border-error/20'
-          }`}
-        >
-          <Ionicons 
-            name={order.incentive.type === 'platform' ? 'cash-outline' : 'flame-outline'} 
-            size={18} 
-            color={order.incentive.type === 'platform' ? Colors.statusOnline : Colors.error} 
-          />
-          <Text
-            className={`text-sm font-medium flex-1 ${
-              order.incentive.type === 'platform' ? 'text-status-online' : 'text-error'
-            }`}
-          >
-            {order.incentive.type === 'platform'
-              ? `Platform Incentive £${order.incentive.amount.toFixed(2)}`
-              : `Finish before ${order.incentive.deadline} for £${order.incentive.amount} extra!`}
-          </Text>
-        </View>
-      )}
-
-      {/* Footer Info / Time */}
-      <View className="flex-row items-center justify-between mb-4">
-        <View className="flex-row items-center gap-1.5">
-          <Ionicons name="receipt-outline" size={16} color={Colors.textSecondary} />
-          <Text className="text-text-secondary text-sm font-medium">
-            Merchant ordered at {order.merchantOrderTime}
-          </Text>
-        </View>
+      {/* Timestamp */}
+      <View className="flex-row items-center gap-2 mt-4">
+        <Ionicons name="time-outline" size={18} color="black" />
+        <Text className="text-black font-medium text-[15px]">
+          Merchant orders {order.merchantOrderTime || '03-27 19:06'}
+        </Text>
       </View>
 
-      {/* CTA */}
-      <Pressable
-        onPress={() => onGrab(order.id)}
-        className="w-full bg-primary active:bg-[#E0AA00] transition-colors rounded-xl min-h-[52px] flex-row items-center justify-center shadow-sm"
-      >
-        <Animated.View
-          style={{ transform: [{ translateX }] }}
-          className="flex-row items-center mr-2"
+      {/* Action Footer */}
+      <View className="flex-row mt-4 items-center justify-between gap-3 mb-1">
+        {/* Price Block */}
+        <View className="bg-gray-100 rounded-xl px-4 py-3 min-w-[80px] items-center justify-center">
+          <Text className="text-black text-lg font-bold">
+            £ {order.price.toFixed(2)}
+          </Text>
+        </View>
+
+        {/* Grab Orders Button */}
+        <Pressable 
+          onPress={() => onGrab(order.id)}
+          className="flex-1 bg-[#fcd303] rounded-xl flex-row items-center p-1.5"
         >
-          <Ionicons name="chevron-forward" size={20} color={Colors.textPrimary} style={{ marginRight: -12 }} />
-          <Ionicons name="chevron-forward" size={20} color={Colors.textPrimary} style={{ marginRight: -12 }} />
-          <Ionicons name="chevron-forward" size={20} color={Colors.textPrimary} />
-        </Animated.View>
-        <Text className="text-text-primary font-bold text-lg tracking-tight ml-2">
-          Grab order
-        </Text>
-      </Pressable>
+          {/* Inner Animated Arrow Block */}
+          <View className="bg-[#deb802] rounded-lg px-2 py-3 items-center justify-center" style={{ width: 50 }}>
+            <Animated.View style={{ transform: [{ translateX }] }}>
+               <Text className="text-white font-bold opacity-90 tracking-widest text-xs">
+                 {`>>>`}
+               </Text>
+            </Animated.View>
+          </View>
+
+          {/* Grab Label */}
+          <Text className="flex-1 text-center text-black font-bold text-[16px] pr-8">
+            Grab orders
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
