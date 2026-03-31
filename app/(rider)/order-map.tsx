@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Platform, Animated } from 'react-native';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { View, Text, Pressable, Platform, Animated as RNAnimated } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MapView, { Marker, PROVIDER_GOOGLE, type LatLng } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, AnimatedRegion } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import Constants from 'expo-constants';
 import { mockPickupOrders, type Coordinates } from '@/mock/orders';
@@ -23,77 +23,72 @@ export default function OrderMapScreen() {
 
   const order = mockPickupOrders.find((o) => o.id === id) || mockPickupOrders[0];
   
-  const restaurantCoords: Coordinates = order.restaurantCoordinates || {
+  const destination = useMemo<Coordinates>(() => order.restaurantCoordinates || {
     latitude: 24.8988,
     longitude: 91.8706,
-  };
+  }, [order]);
 
-  const initialRiderLat = restaurantCoords.latitude + RIDER_START_OFFSET.latitude;
-  const initialRiderLng = restaurantCoords.longitude + RIDER_START_OFFSET.longitude;
+  const initialOrigin = useMemo<Coordinates>(() => ({
+    latitude: destination.latitude + RIDER_START_OFFSET.latitude,
+    longitude: destination.longitude + RIDER_START_OFFSET.longitude,
+  }), [destination]);
 
-  const [currentRiderCoords, setCurrentRiderCoords] = useState<Coordinates>({
-    latitude: initialRiderLat,
-    longitude: initialRiderLng,
-  });
-
-  const animatedLat = useRef(new Animated.Value(initialRiderLat)).current;
-  const animatedLng = useRef(new Animated.Value(initialRiderLng)).current;
+  // Use AnimatedRegion to prevent map re-renders on coordinate updates
+  const riderLocation = useRef(new AnimatedRegion({
+    latitude: initialOrigin.latitude,
+    longitude: initialOrigin.longitude,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  })).current;
 
   const [hasArrived, setHasArrived] = useState(false);
 
   useEffect(() => {
     if (hasArrived) return;
 
+    // Track logic purely updating the AnimatedRegion instance directly
+    let currentLat = initialOrigin.latitude;
+    let currentLng = initialOrigin.longitude;
+
     const interval = setInterval(() => {
-      setCurrentRiderCoords((prev) => {
-        const latDiff = restaurantCoords.latitude - prev.latitude;
-        const lngDiff = restaurantCoords.longitude - prev.longitude;
+      const latDiff = destination.latitude - currentLat;
+      const lngDiff = destination.longitude - currentLng;
+      const distance = Math.sqrt(latDiff ** 2 + lngDiff ** 2);
 
-        const distance = Math.sqrt(latDiff ** 2 + lngDiff ** 2);
-        if (distance < 0.0005) {
-          setHasArrived(true);
-          clearInterval(interval);
-          return restaurantCoords;
-        }
+      if (distance < 0.0005) {
+        setHasArrived(true);
+        clearInterval(interval);
+        return;
+      }
 
-        const step = 0.0008;
-        const newLat = prev.latitude + (latDiff > 0 ? Math.min(step, latDiff) : Math.max(-step, latDiff));
-        const newLng = prev.longitude + (lngDiff > 0 ? Math.min(step, lngDiff) : Math.max(-step, lngDiff));
+      const step = 0.0008; // speed
+      currentLat += (latDiff > 0 ? Math.min(step, latDiff) : Math.max(-step, latDiff));
+      currentLng += (lngDiff > 0 ? Math.min(step, lngDiff) : Math.max(-step, lngDiff));
 
-        Animated.parallel([
-          Animated.timing(animatedLat, {
-            toValue: newLat,
-            duration: 1400,
-            useNativeDriver: false,
-          }),
-          Animated.timing(animatedLng, {
-            toValue: newLng,
-            duration: 1400,
-            useNativeDriver: false,
-          }),
-        ]).start();
+      // Animate Marker smoothly
+      (riderLocation.timing as any)({
+        latitude: currentLat,
+        longitude: currentLng,
+        duration: 1400,
+        useNativeDriver: false,
+      }).start();
 
-        return {
-          latitude: newLat,
-          longitude: newLng,
-        };
-      });
     }, 1500);
 
     return () => clearInterval(interval);
-  }, [hasArrived, restaurantCoords, animatedLat, animatedLng]);
+  }, [hasArrived, destination, initialOrigin, riderLocation]);
 
   useEffect(() => {
     if (mapRef.current) {
       mapRef.current.fitToCoordinates(
-        [currentRiderCoords, restaurantCoords],
+        [initialOrigin, destination],
         {
-          edgePadding: { top: 100, right: 50, bottom: 300, left: 50 },
+          edgePadding: { top: 100, right: 50, bottom: 400, left: 50 },
           animated: true,
         }
       );
     }
-  }, []);
+  }, [initialOrigin, destination]);
 
   const handleBackPress = () => {
     router.back();
@@ -112,48 +107,48 @@ export default function OrderMapScreen() {
         style={{ flex: 1 }}
         provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
         initialRegion={{
-          latitude: (currentRiderCoords.latitude + restaurantCoords.latitude) / 2,
-          longitude: (currentRiderCoords.longitude + restaurantCoords.longitude) / 2,
+          latitude: (initialOrigin.latitude + destination.latitude) / 2,
+          longitude: (initialOrigin.longitude + destination.longitude) / 2,
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
         }}
         showsUserLocation={false}
         showsMyLocationButton={false}
       >
+        {/* Route Directions - Single Render using static initialOrigin */}
+        <MapViewDirections
+          origin={initialOrigin}
+          destination={destination}
+          apikey={GOOGLE_MAPS_API_KEY}
+          strokeWidth={4}
+          strokeColor="#3b82f6"
+          mode="DRIVING"
+          onError={(error) => console.log('Directions error:', error)}
+        />
+
         {/* Restaurant Marker */}
         <Marker
-          coordinate={restaurantCoords}
+          coordinate={destination}
           title={order.restaurantName}
           description={order.restaurantAddress}
         >
-          <View className="bg-[#fcd303] p-2 rounded-full border-2 border-white shadow-lg">
-            <Ionicons name="storefront" size={20} color="black" />
+          <View className="bg-white p-1 rounded-full shadow-lg border border-gray-200">
+            <View className="bg-black w-6 h-6 rounded-full items-center justify-center">
+              <Ionicons name="storefront" size={12} color="white" />
+            </View>
           </View>
         </Marker>
 
-        {/* Rider Marker */}
-        <Marker
-          coordinate={currentRiderCoords}
+        {/* Animated Rider Marker */}
+        <Marker.Animated
+          coordinate={riderLocation as any}
           title="Your Location"
           anchor={{ x: 0.5, y: 0.5 }}
         >
           <View className="bg-black p-2 rounded-full border-2 border-white shadow-lg">
             <Ionicons name="bicycle" size={20} color="#fcd303" />
           </View>
-        </Marker>
-
-        {/* Route Directions */}
-        <MapViewDirections
-          origin={currentRiderCoords}
-          destination={restaurantCoords}
-          apikey={GOOGLE_MAPS_API_KEY}
-          strokeWidth={4}
-          strokeColor="#3b82f6"
-          mode="DRIVING"
-          onError={(error) => {
-            console.log('Directions error:', error);
-          }}
-        />
+        </Marker.Animated>
       </MapView>
 
       {/* Floating Back Button */}
@@ -165,65 +160,92 @@ export default function OrderMapScreen() {
         <Ionicons name="arrow-back" size={22} color="black" />
       </Pressable>
 
-      {/* Bottom Sheet Overlay */}
+      {/* Toggles (Distance first / Time first) */}
+      <View style={{ top: insets.top + 10 }} className="absolute left-[70px] right-4 flex-row gap-2 z-10">
+        <Pressable className="flex-1 bg-white rounded-xl py-2.5 items-center justify-center flex-row gap-2 shadow-sm">
+          <Ionicons name="location-outline" size={18} color="black" />
+          <Text className="text-black font-semibold text-[15px]">Distance first</Text>
+        </Pressable>
+        <Pressable className="flex-1 bg-white rounded-xl py-2.5 items-center justify-center flex-row gap-2 shadow-sm">
+          <Ionicons name="time-outline" size={18} color="black" />
+          <Text className="text-black font-semibold text-[15px]">Time first</Text>
+        </Pressable>
+      </View>
+
+      {/* Bottom Sheet Overlay matching image exactly */}
       <View 
-        className="absolute left-0 right-0 bottom-0 bg-white rounded-t-3xl shadow-2xl"
-        style={{ paddingBottom: insets.bottom + 16 }}
+        className="absolute left-0 right-0 bottom-0 bg-[#f5f5f5] rounded-t-3xl shadow-2xl pt-3 pb-6 px-4"
+        style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
-        <View className="p-5">
-          {/* Handle Bar */}
-          <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-4" />
+        <View className="bg-white rounded-[20px] p-5">
+          {/* Row 1: Times */}
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-gray-500 font-medium">
+              Arrive at the store in <Text className="text-black font-bold text-lg">9mins</Text>
+            </Text>
+            <Text className="text-gray-500 font-medium">
+              Delivered in <Text className="text-black font-bold text-lg">14mins</Text>
+            </Text>
+          </View>
 
-          {/* Store Info */}
-          <View className="flex-row items-start gap-3 mb-4">
-            <View className="bg-[#fcd303] p-2 rounded-full">
-              <Ionicons name="storefront" size={20} color="black" />
+          {/* Divider */}
+          <View className="h-px bg-gray-100 mb-4" />
+
+          {/* Row 2: Order Number */}
+          <View className="flex-row justify-between items-center mb-5">
+            <Text className="text-black text-[22px] font-bold tracking-tight">#{order.id === '1' || order.id.startsWith('p') ? '77831618' : order.id}</Text>
+            <Text className="text-black font-bold text-sm">Help</Text>
+          </View>
+
+          {/* Row 3: Store Info */}
+          <View className="relative mb-5">
+            <View className="flex-row items-start gap-3">
+              <Ionicons name="storefront-outline" size={20} color="black" className="mt-0.5" />
+              <View className="flex-1">
+                <Text className="text-black font-bold text-[19px] mb-2">{order.restaurantName}</Text>
+                <View className="bg-gray-100 self-start px-3 py-1 rounded-full mb-3">
+                  <Text className="text-black text-sm font-bold">Dishes * 3  {'>'}</Text>
+                </View>
+                <Text className="text-gray-500 text-[15px] leading-relaxed pr-10">
+                  {order.restaurantAddress}
+                </Text>
+              </View>
             </View>
+            <View className="absolute right-0 top-1 bg-gray-100 h-10 w-10 rounded-full items-center justify-center">
+              <Ionicons name="navigate" size={18} color="black" style={{ transform: [{ rotate: '45deg' }] }} />
+            </View>
+          </View>
+
+          {/* Row 4: Customer Info */}
+          <View className="flex-row items-start gap-3 mb-5">
+            <Ionicons name="person-outline" size={20} color="black" className="mt-0.5" />
             <View className="flex-1">
-              <Text className="text-black font-bold text-lg">
-                {order.restaurantName}
+              <Text className="text-black font-bold text-[17px] leading-tight mb-2">
+                {order.customerAddress}
               </Text>
-              <Text className="text-gray-500 text-sm mt-1" numberOfLines={2}>
-                {order.restaurantAddress}
-              </Text>
+              <View className="bg-[#ccf5e3] px-3 py-1 rounded-md self-start">
+                <Text className="text-[#10b981] font-medium text-[13px]">Special Promotion £ 0.3</Text>
+              </View>
             </View>
           </View>
 
-          {/* Order Details Row */}
-          <View className="flex-row justify-between items-center py-3 border-t border-gray-100">
-            <View className="flex-row items-center gap-2">
-              <Ionicons name="receipt-outline" size={18} color="#666" />
-              <Text className="text-gray-600 text-sm">
-                Order {order.orderNo || `#${order.id}`}
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <Ionicons name="restaurant-outline" size={18} color="#666" />
-              <Text className="text-gray-600 text-sm">
-                {order.dishesCount || 1} items
-              </Text>
-            </View>
+          {/* Row 5: Timestamp */}
+          <View className="flex-row items-center gap-2 mb-4 ml-1">
+            <Ionicons name="time-outline" size={18} color="black" />
+            <Text className="text-black font-bold text-[14px]">
+              Merchant orders {order.merchantOrderTime || '03-16 20:22'}
+            </Text>
           </View>
 
-          {/* Status Indicator */}
-          {hasArrived && (
-            <View className="bg-green-100 px-4 py-2 rounded-lg mb-4 flex-row items-center gap-2">
-              <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-              <Text className="text-green-700 font-medium">
-                You have arrived at the restaurant!
-              </Text>
-            </View>
-          )}
-
-          {/* Action Button */}
+          {/* Row 6: Action Button */}
           <Pressable
             onPress={handleArrivedPress}
-            className={`py-4 rounded-xl items-center justify-center active:opacity-80 ${
+            className={`py-3.5 rounded-xl items-center justify-center mt-1 ${
               hasArrived ? 'bg-green-500' : 'bg-[#fcd303]'
             }`}
           >
-            <Text className={`font-bold text-base ${hasArrived ? 'text-white' : 'text-black'}`}>
-              {hasArrived ? 'Confirm & Pick Up Order' : 'Arrived at Shop'}
+            <Text className={`font-bold text-[17px] ${hasArrived ? 'text-white' : 'text-black'}`}>
+              {hasArrived ? 'Confirm & Pick Up' : 'Arrived at Shop'}
             </Text>
           </Pressable>
         </View>
