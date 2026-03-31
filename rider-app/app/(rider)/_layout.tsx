@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Modal, Text, Switch, TouchableOpacity } from 'react-native';
+import { View, Modal, Text, TouchableOpacity } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
@@ -7,7 +7,7 @@ import { FloatingChatButton } from '@/components/layout';
 import { useAuthStore } from '@/store/authStore';
 
 export default function RiderLayout() {
-  const { hasSeenNewTerms, setHasSeenNewTerms, isOnline, setIsOnline } = useAuthStore();
+  const { hasSeenNewTerms, setHasSeenNewTerms } = useAuthStore();
   const [showNewTermsModal, setShowNewTermsModal] = useState(!hasSeenNewTerms);
 
   const handleDismissTerms = () => {

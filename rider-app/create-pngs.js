@@ -88,7 +88,7 @@ const images = [
   { name: 'icon.png', width: 1024, height: 1024, r: 255, g: 107, b: 53 },      // #FF6B35
   { name: 'icon.png', width: 1284, height: 2778, r: 0, g: 78, b: 137 },      // #004E89
   { name: 'adaptive-icon.png', width: 1024, height: 1024, r: 27, g: 73, b: 101 }, // #1B4965
-  { name: 'favicon.svg', width: 48, height: 48, r: 45, g: 90, b: 140 }         // #2D5A8C
+  { name: 'favicon.png', width: 48, height: 48, r: 45, g: 90, b: 140 }         // #2D5A8C
 ];
 
 images.forEach(img => {
