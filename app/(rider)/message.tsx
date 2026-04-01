@@ -1,124 +1,225 @@
-import React from 'react';
+/**
+ * Message/Chat Screen for Rider
+ * Real-time chat with customers using Socket.io
+ */
+
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   Pressable,
-  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
-import { mockMessages, mockNoticeCount } from '@/mock/messages';
+import { useChatStore } from '@/store/chatStore';
+import { MessageBubble } from '@/components/chat/MessageBubble';
+import { ChatInput } from '@/components/chat/ChatInput';
+import type { Message } from '@/constants/chatTypes';
 
 export default function MessageScreen() {
   const router = useRouter();
+  const { orderId: orderIdParam } = useLocalSearchParams<{
+    orderId?: string | string[];
+  }>();
+  const flatListRef = useRef<FlatList>(null);
 
-  const shortcuts = [
-    { icon: 'pricetag-outline' as const, label: 'Event News', badge: 0 },
-    { icon: 'document-text-outline' as const, label: 'Notice', badge: mockNoticeCount },
-    { icon: 'book-outline' as const, label: 'knowledge base', badge: 0 },
-  ];
+  // Chat store state and actions
+  const {
+    isConnected,
+    connectionError,
+    customerInfo,
+    messages,
+    connect,
+    disconnect,
+    sendMessage,
+  } = useChatStore();
+
+  const routeOrderId = Array.isArray(orderIdParam) ? orderIdParam[0] : orderIdParam;
+  conAppState management to reconnect on foreground
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active' && !isConnected) {
+        console.log('[MessageScreen] App came to foreground, reconnecting...');
+        connect(activeOrderId);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isConnected, activeOrderId, connect]);
+
+  // st activeOrderId = routeOrderId ?? 'ORDER_001';
+
+  // Connect to chat when component mounts
+  useEffect(() => {
+    console.log('[MessageScreen] Connecting to chat for order:', activeOrderId);
+    connect(activeOrderId);
+
+    // Cleanup: disconnect when component unmounts
+    return () => {
+      console.log('[MessageScreen] Disconnecting from chat');
+      disconnect();
+    };
+  }, [activeOrderId, connect, disconnect]);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messages.length > 0 && flatListRef.current) {
+      // Small delay to ensure FlatList has rendered
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [messages]);
+
+  const handleSendMessage = (text: string) => {
+    sendMessage(text);
+  };
+
+  const renderMessage = ({ item }: { item: Message }) => (
+    <MessageBubble message={item} />
+  );
+
+  const renderEmptyState = () => (
+    <View className="flex-1 items-center justify-center px-6">
+      <View className="w-20 h-20 bg-gray-100 rounded-full items-center justify-center mb-4">
+        <Ionicons name="chatbubbles-outline" size={40} color={Colors.textMuted} />
+      </View>
+      <Text className="text-text-primary text-lg font-bold mb-2">
+        Start a conversation
+      </Text>
+      <Text className="text-text-secondary text-center text-sm">
+        Send a message to the customer about their delivery
+      </Text>
+    </View>
+  );
+
+  const renderConnectionError = () => (
+    <View className="bg-error-bg border-l-4 border-error px-4 py-3 mx-4 my-2 rounded">
+      <View className="flex-row items-center">
+        <Ionicons name="alert-circle" size={20} color={Colors.error} />
+        <Text className="text-error text-sm font-medium ml-2 flex-1">
+          {connectionError || 'Unable to connect to chat server'}
+        </Text>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-screen-bg" edges={['top']}>
+      {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3 bg-card-bg shadow-sm z-10">
-        <Pressable 
-          onPress={() => router.push('/(drawer)/personal')}
+        <Pressable
+          onPress={() => router.back()}
           className="p-3 -ml-3 active:opacity-60 min-h-[48px] min-w-[48px] items-center justify-center"
         >
-          <Ionicons name="menu" size={28} color={Colors.textPrimary} />
+          <Ionicons name="arrow-back" size={28} color={Colors.textPrimary} />
         </Pressable>
-        <Text className="text-xl font-bold tracking-tight text-text-primary">Messages</Text>
-        <Pressable className="p-3 -mr-3 active:opacity-60 min-h-[48px] min-w-[48px] items-center justify-center">
+
+        {/* Customer info */}
+        <View className="flex-1 items-center">
+          {customerInfo ? (
+            <View className="items-center">
+              <Text className="text-lg font-bold tracking-tight text-text-primary">
+                {customerInfo.customerName}
+              </Text>
+              <View className="flex-row items-center mt-0.5">
+                <View
+                  className={`w-2 h-2 rounded-full mr-1.5 ${
+                    isConnected ? 'bg-online' : 'bg-offline'
+                  }`}
+                />
+                <Text className="text-xs text-text-secondary">
+                  {isConnected ? 'Connected' : 'Connecting...'}
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <Text className="text-xl font-bold tracking-tight text-text-primary">
+              Customer Chat
+            </Text>
+          )}
+        </View>
+
+        <Pressable
+          className="p-3 -mr-3 active:opacity-60 min-h-[48px] min-w-[48px] items-center justify-center"
+          onPress={() => {
+            /* Add call functionality */
+          }}
+        >
           <Ionicons name="call-outline" size={24} color={Colors.textPrimary} />
         </Pressable>
       </View>
 
-      <View className="flex-row justify-around py-5 bg-card-bg mb-2">
-        {shortcuts.map((item, index) => (
-          <Pressable 
-            key={index} 
-            className="items-center active:opacity-60"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          >
-            <View className="relative mb-2">
-              <View className="w-14 h-14 bg-blue-50/50 rounded-2xl items-center justify-center border border-blue-100/50">
-                <Ionicons name={item.icon} size={28} color={Colors.primary} />
-              </View>
-              {item.badge > 0 && (
-                <View className="absolute -top-1.5 -right-1.5 bg-badge-red rounded-full min-w-[22px] h-[22px] items-center justify-center px-1.5 border-2 border-card-bg">
-                  <Text className="text-white text-[10px] font-bold">{item.badge}</Text>
-                </View>
-              )}
-            </View>
-            <Text className="text-text-secondary text-sm font-medium">{item.label}</Text>
-          </Pressable>
-        ))}
-      </View>
+      {/* Connection error banner */}
+      {connectionError && renderConnectionError()}
 
-      <ScrollView 
+      {/* Customer delivery address */}
+      {customerInfo && (
+        <View className="bg-primary/10 px-4 py-3 border-b border-border-soft">
+          <View className="flex-row items-center">
+            <Ionicons name="location" size={16} color={Colors.primary} />
+            <Text className="text-text-secondary text-sm ml-2 flex-1">
+              {customerInfo.deliveryAddress}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
       >
-        <Pressable 
-          className="flex-row items-center bg-white mx-4 mt-2 px-4 py-4 rounded-2xl shadow-sm border border-border-soft mb-6 active:bg-gray-50"
-        >
-          <View className="w-12 h-12 bg-primary rounded-xl items-center justify-center mr-4">
-            <Ionicons name="headset" size={24} color={Colors.cardBg} />
+        {/* initialNumToRender={15}
+            maxToRenderPerBatch={10}
+            Messages List */}
+        {!isConnected && messages.length === 0 ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text className="text-text-secondary text-sm mt-3">
+              Connecting to chat...
+            </Text>
           </View>
-          <View className="flex-1">
-            <Text className="text-text-primary font-bold text-base mb-0.5">Help Center</Text>
-            <Text className="text-text-muted text-sm">Get immediate assistance</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
-        </Pressable>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{
+              paddingTop: 16,
+              paddingBottom: 16,
+              flexGrow: 1,
+            }}
+            ListEmptyComponent={renderEmptyState}
+            showsVerticalScrollIndicator={false}
+            onContentSizeChange={() => {
+              flatListRef.current?.scrollToEnd({ animated: true });
+            }}
+          />
+        )}
 
-        <View className="px-4 mb-3">
-          <Text className="text-text-primary text-lg font-bold tracking-tight">Recent</Text>
-        </View>
-
-        <View className="bg-card-bg border-y border-border-soft">
-          {mockMessages.map((message, idx) => (
-            <Pressable
-              key={message.id}
-              className={`flex-row items-center px-4 py-4 active:bg-gray-50 ${
-                idx !== mockMessages.length - 1 ? 'border-b border-border-soft' : ''
-              }`}
-            >
-              <View className="w-14 h-14 bg-gray-100 rounded-full items-center justify-center overflow-hidden border border-border-soft">
-                {message.senderAvatar ? (
-                  <Image
-                    source={{ uri: message.senderAvatar }}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <Ionicons name="person" size={24} color={Colors.textMuted} />
-                )}
-              </View>
-              <View className="flex-1 ml-4 justify-center">
-                <View className="flex-row justify-between items-center mb-1">
-                  <Text className="text-text-primary font-bold text-base tracking-tight truncate flex-1 pr-2">
-                    {message.senderName || 'System Message'}
-                  </Text>
-                  <Text className="text-text-muted text-xs font-medium shrink-0">
-                    {message.timestamp}
-                  </Text>
-                </View>
-                <Text
-                  className="text-text-secondary text-sm leading-relaxed pr-2"
-                  numberOfLines={2}
-                >
-                  {message.preview}
-                </Text>
-              </View>
-            </Pressable>
-          ))}
-        </View>
-      </ScrollView>
+        {/* Chat Input */}
+        <ChatInput
+          onSend={handleSendMessage}
+          disabled={!isConnected}
+          placeholder={
+            isConnected
+              ? 'Type a message...'
+              : 'Connecting to chat...'
+          }
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

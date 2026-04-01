@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, Pressable, Platform, Animated as RNAnimated } from 'react-native';
+import { View, Text, Pressable, Platform, Animated as RNAnimated, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_GOOGLE, AnimatedRegion } from 'react-native-maps';
@@ -42,53 +43,76 @@ export default function OrderMapScreen() {
   })).current;
 
   const [hasArrived, setHasArrived] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<Coordinates>(initialOrigin);
 
   useEffect(() => {
     if (hasArrived) return;
 
-    // Track logic purely updating the AnimatedRegion instance directly
-    let currentLat = initialOrigin.latitude;
-    let currentLng = initialOrigin.longitude;
+    let locationSubscription: Location.LocationSubscription | null = null;
 
-    const interval = setInterval(() => {
-      const latDiff = destination.latitude - currentLat;
-      const lngDiff = destination.longitude - currentLng;
-      const distance = Math.sqrt(latDiff ** 2 + lngDiff ** 2);
+    const startTracking = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission Denied', 'Please grant location permissions to track the order.');
+          return;
+        }
 
-      if (distance < 0.0005) {
-        setHasArrived(true);
-        clearInterval(interval);
-        return;
+        locationSubscription = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            timeInterval: 2000,
+            distanceInterval: 5,
+          },
+          (location) => {
+            const { latitude, longitude } = location.coords;
+
+            // Update route origin
+            setCurrentLocation({ latitude, longitude });
+
+            // Check arrival (basic distance check)
+            const latDiff = destination.latitude - latitude;
+            const lngDiff = destination.longitude - longitude;
+            const distance = Math.sqrt(latDiff ** 2 + lngDiff ** 2);
+            
+            if (distance < 0.0005) {
+              setHasArrived(true);
+            }
+
+            // Animate Marker smoothly
+            (riderLocation.timing as any)({
+              latitude,
+              longitude,
+              duration: 1500,
+              useNativeDriver: false,
+            }).start();
+          }
+        );
+      } catch (error) {
+        console.error('Error tracking location:', error);
       }
+    };
 
-      const step = 0.0008; // speed
-      currentLat += (latDiff > 0 ? Math.min(step, latDiff) : Math.max(-step, latDiff));
-      currentLng += (lngDiff > 0 ? Math.min(step, lngDiff) : Math.max(-step, lngDiff));
+    startTracking();
 
-      // Animate Marker smoothly
-      (riderLocation.timing as any)({
-        latitude: currentLat,
-        longitude: currentLng,
-        duration: 1400,
-        useNativeDriver: false,
-      }).start();
-
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [hasArrived, destination, initialOrigin, riderLocation]);
+    return () => {
+      if (locationSubscription) {
+        locationSubscription.remove();
+      }
+    };
+  }, [hasArrived, destination, riderLocation]);
 
   useEffect(() => {
     if (mapRef.current) {
       mapRef.current.fitToCoordinates(
-        [initialOrigin, destination],
+        [currentLocation, destination],
         {
           edgePadding: { top: 100, right: 50, bottom: 400, left: 50 },
           animated: true,
         }
       );
     }
-  }, [initialOrigin, destination]);
+  }, [currentLocation, destination]);
 
   const handleBackPress = () => {
     router.back();
@@ -115,9 +139,9 @@ export default function OrderMapScreen() {
         showsUserLocation={false}
         showsMyLocationButton={false}
       >
-        {/* Route Directions - Single Render using static initialOrigin */}
+        {/* Route Directions - Updated to use live currentLocation */}
         <MapViewDirections
-          origin={initialOrigin}
+          origin={currentLocation}
           destination={destination}
           apikey={GOOGLE_MAPS_API_KEY}
           strokeWidth={4}

@@ -39,6 +39,10 @@ export default function DeliveryOrdersScreen() {
 
   const handleGrabOrder = (orderId: string) => {
     setToast({ visible: true, message: `Order ${orderId} grabbed!` });
+    router.push({
+      pathname: '/(rider)/message',
+      params: { orderId },
+    });
   };
 
   const handleMenuPress = () => {
